@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AVIF Converter</title>
+</head>
+<body>
+    <h1>Convert Image to AVIF</h1>
+    <input type="file" id="fileInput">
+    <button onclick="uploadFile()">Convert</button>
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById("fileInput");
+            if (!fileInput.files.length) {
+                alert("Select a file first!");
+                return;
+            }
+        
+            const formData = new FormData();
+            formData.append("image", fileInput.files[0]);
+        
+            try {
+                const response = await fetch("/convert", { method: "POST", body: formData });
+        
+                if (!response.ok) {
+                    throw new Error("Conversion failed!");
+                }
+        
+                // Convert response to Blob
+                const blob = await response.blob();
+        
+                // Create a hidden download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.style.display = "none";
+                a.href = url;
+                a.download = "converted.avif";  // Set filename
+                document.body.appendChild(a);
+                a.click();  // Automatically download
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url); // Cleanup memory
+        
+                alert("Conversion successful! The file is downloaded.");
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+        
+    </script>
+</body>
+</html>
